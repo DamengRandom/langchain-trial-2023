@@ -1,11 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { OpenAI } from "langchain/llms/openai";
-import { PromptTemplate } from "langchain/prompts";
-import { LLMChain } from "langchain/chains";
+// import { PromptTemplate } from "langchain/prompts";
+// import { LLMChain } from "langchain/chains";
 import { CallbackManager } from "langchain/callbacks";
 import useTypewriter from "react-typewriter-hook";
 
-const openAiCaller = async (question: string): Promise<string> => {
+// const openAiCaller = async (question: string): Promise<string> => {
+//   const model = new OpenAI({
+//     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+//     temperature: 0.9,
+//     streaming: true,
+//     callbackManager: CallbackManager.fromHandlers({
+//       async handleLLMNewToken(token: string) {
+//         process.stdout.write(token);
+//       },
+//     }),
+//   });
+//   const template = "Who is {name}?";
+//   const prompt = new PromptTemplate({
+//     template,
+//     inputVariables: ["name"],
+//   });
+
+//   const chain = new LLMChain({ llm: model, prompt });
+
+//   const res = await chain.call({ name: question });
+
+//   return res?.text;
+// };
+
+// Simple straming query ~~
+const openAiStream = async (question: string): Promise<string> => {
   const model = new OpenAI({
     openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     temperature: 0.9,
@@ -16,17 +41,10 @@ const openAiCaller = async (question: string): Promise<string> => {
       },
     }),
   });
-  const template = "Who is {name}?";
-  const prompt = new PromptTemplate({
-    template,
-    inputVariables: ["name"],
-  });
 
-  const chain = new LLMChain({ llm: model, prompt });
+  const res = await model.call(question);
 
-  const res = await chain.call({ name: question });
-
-  return res?.text;
+  return res;
 };
 
 // TypeWriter component
@@ -79,7 +97,8 @@ export default function OpenAIDemo() {
       <div>
         {show && !!query && (
           <div style={{ width: 600 }}>
-            <TypewriterEffect promise={openAiCaller(query)} />
+            {/* <TypewriterEffect promise={openAiCaller(query)} /> */}
+            <TypewriterEffect promise={openAiStream(query)} />
             <button
               onClick={() => {
                 setQuery("");
